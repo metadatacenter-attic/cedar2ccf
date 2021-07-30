@@ -20,7 +20,7 @@ Operating System :: POSIX :: Linux
 
 setup(name='cedar2ccf',
       version=__version__,
-      description='A utility tool to convert ASCT+B instances on CEDAR to CCF-BSO ontology',
+      description='A Python tool to convert CEDAR metadata instances to CCF Biological Structure Ontology (CCF-BSO)',
       author='Josef Hardi',
       author_email='johardi@stanford.edu',
       url='https://github.com/metadatacenter/cedar2ccf',
