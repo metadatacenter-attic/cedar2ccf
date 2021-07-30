@@ -123,10 +123,6 @@ class BSOntology:
             else:
                 cell_type = self._class(cell_type_iri)
 
-            localized_cell_type_label =\
-                cell_type_label + " of " +\
-                lowercase(anatomical_structure_label)
-
             cell_type.subClassOf =\
                 [self._some_values_from(
                     self.kwargs['located_in'],
@@ -134,7 +130,7 @@ class BSOntology:
 
             characterizing_biomarker_set_label =\
                 "characterizing biomarker set of " +\
-                localized_cell_type_label
+                cell_type_label
             characterizing_biomarker_set_iri =\
                 "http://purl.org/ccf/" +\
                 snakecase(self._remove_punctuations(
