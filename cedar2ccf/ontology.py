@@ -14,6 +14,7 @@ class BSOntology:
     _CCF_BASE_IRI = "http://purl.org/ccf/"
 
     _CCF_NS = Namespace(_CCF_BASE_IRI)
+    _DC_TERMS_NS = Namespace("http://purl.org/dc/terms/")
     _OBO_NS = Namespace("http://purl.obolibrary.org/obo/")
     _HGNC_NS = Namespace("http://ncicb.nci.nih.gov/xml/owl/EVS/Hugo.owl#")
 
@@ -25,6 +26,7 @@ class BSOntology:
     def new():
         g = Graph()
         g.bind('ccf', BSOntology._CCF_NS)
+        g.bind('dcterms', BSOntology._DC_TERMS_NS)
         g.bind('obo', BSOntology._OBO_NS)
         g.bind('hgnc', BSOntology._HGNC_NS)
         g.bind('owl', OWL_NS)
@@ -80,6 +82,10 @@ class BSOntology:
                      nameAnnotation=Literal("is characterizing biomarkers of cell type"),
                      nameIsLabel=True,
                      graph=g)
+        source =\
+            Property(BSOntology._DC_TERMS_NS.source,
+                     baseType=OWL_NS.AnnotationProperty, graph=g)
+
         return BSOntology(
             g,
             ontology=Ontology(
@@ -94,7 +100,8 @@ class BSOntology:
             is_gene_marker_of_cell_type=is_gene_marker_of_cell_type,
             is_protein_marker_of_cell_type=is_protein_marker_of_cell_type,
             cell_type_has_characterizing_biomarker_set=cell_type_has_characterizing_biomarker_set,
-            is_characterizing_biomarker_set_of_cell_type=is_characterizing_biomarker_set_of_cell_type)
+            is_characterizing_biomarker_set_of_cell_type=is_characterizing_biomarker_set_of_cell_type,
+            source=source)
 
     def mutate(self, instances):
         """
@@ -142,6 +149,13 @@ class BSOntology:
             characterizing_biomarker_set.subClassOf =\
                 [self.kwargs['characterizing_biomarker_set']]
 
+            for doi in instance['doi']:
+                doi_str = doi['@value']
+                if doi_str is not None and "doi:" in doi_str:
+                    self.graph.add((characterizing_biomarker_set.identifier,
+                                   self.kwargs['source'].identifier,
+                                   self._expand_doi(doi_str)))
+
             biomarkers = []
             for marker in instance['gene_biomarker']:
                 if marker:
@@ -184,6 +198,9 @@ class BSOntology:
                     characterizing_biomarker_set)]
 
         return BSOntology(self.graph, **self.kwargs)
+
+    def _expand_doi(self, str):
+        return URIRef(str.replace("doi:", "http://doi.org/"))
 
     def _class(self, iri, label=None):
         if label is not None:
