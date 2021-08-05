@@ -10,7 +10,7 @@ The creation of the CCF-BSO starts by working with organ experts to manually con
 
 The organ experts will use CEDAR during the data collection. Our team at Stanford has developed several metadata templates to accomodate the data collection for different major human organs (e.g., brain, heart, kidney, lung, etc.). The figure below shows an example of CEDAR metadata instance.
 
-<img width="650" alt="Screen Shot 2021-08-05 at 12 26 50 PM" src="https://user-images.githubusercontent.com/5062950/128409356-b12d953d-6001-4cbc-bc8b-86df4f9af984.png">
+<img width="600" alt="Screen Shot 2021-08-05 at 12 26 50 PM" src="https://user-images.githubusercontent.com/5062950/128409356-b12d953d-6001-4cbc-bc8b-86df4f9af984.png">
 
 CEDAR stores metadata instances in JSON-LD format and users are able to access their data on the Web via REST API. This Python tool utilizes this feature to convert the CEDAR metadata instances into OWL axioms to construct the CCF-BSO.
 
