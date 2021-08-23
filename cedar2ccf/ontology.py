@@ -1,7 +1,7 @@
 from string import punctuation
 from stringcase import lowercase, snakecase
 
-from rdflib import Graph, Namespace, URIRef, Literal, OWL
+from rdflib import Graph, Namespace, URIRef, Literal, OWL, RDFS
 from rdflib.extras.infixowl import OWL_NS, Ontology, Class, Restriction,\
     Property, BooleanClass
 
@@ -31,56 +31,26 @@ class BSOntology:
         g.bind('hgnc', BSOntology._HGNC_NS)
         g.bind('owl', OWL_NS)
         characterizing_biomarker_set =\
-            Class(BSOntology._CCF_NS.characterizing_biomarker_set,
-                  nameAnnotation=Literal("characterizing biomarker set"),
-                  nameIsLabel=True,
-                  graph=g)
+            Class(BSOntology._CCF_NS.characterizing_biomarker_set, graph=g)
         has_member =\
-            Property(BSOntology._CCF_NS.has_member,
-                     nameAnnotation=Literal("has member"),
-                     nameIsLabel=True,
-                     graph=g)
+            Property(BSOntology._CCF_NS.has_member, graph=g)
         located_in =\
-            Property(BSOntology._OBO_NS.RO_0001025,
-                     nameAnnotation=Literal("located in"),
-                     nameIsLabel=True,
-                     graph=g)
+            Property(BSOntology._OBO_NS.RO_0001025, graph=g)
         cell_type_has_gene_marker =\
-            Property(BSOntology._CCF_NS.cell_type_has_gene_marker,
-                     nameAnnotation=Literal("cell type has gene marker"),
-                     nameIsLabel=True,
-                     graph=g)
+            Property(BSOntology._CCF_NS.cell_type_has_gene_marker, graph=g)
         cell_type_has_protein_marker =\
-            Property(BSOntology._CCF_NS.cell_type_has_protein_marker,
-                     nameAnnotation=Literal("cell type has protein marker"),
-                     nameIsLabel=True,
-                     graph=g)
+            Property(BSOntology._CCF_NS.cell_type_has_protein_marker, graph=g)
         is_biomarker_of_cell_type =\
-            Property(BSOntology._CCF_NS.is_biomarker_of_cell_type,
-                     nameAnnotation=Literal("is biomarker of cell type"),
-                     nameIsLabel=True,
-                     graph=g)
+            Property(BSOntology._CCF_NS.is_biomarker_of_cell_type, graph=g)
         is_gene_marker_of_cell_type =\
-            Property(BSOntology._CCF_NS.is_gene_marker_of_cell_type,
-                     subPropertyOf=[is_biomarker_of_cell_type],
-                     nameAnnotation=Literal("is gene marker of cell type"),
-                     nameIsLabel=True,
-                     graph=g)
+            Property(BSOntology._CCF_NS.is_gene_marker_of_cell_type, graph=g)
         is_protein_marker_of_cell_type =\
-            Property(BSOntology._CCF_NS.is_protein_marker_of_cell_type,
-                     subPropertyOf=[is_biomarker_of_cell_type],
-                     nameAnnotation=Literal("is protein marker of cell type"),
-                     nameIsLabel=True,
-                     graph=g)
+            Property(BSOntology._CCF_NS.is_protein_marker_of_cell_type, graph=g)
         cell_type_has_characterizing_biomarker_set =\
             Property(BSOntology._CCF_NS.cell_type_has_characterizing_biomarker_set,
-                     nameAnnotation=Literal("cell type has characterizing biomarker set"),
-                     nameIsLabel=True,
                      graph=g)
         is_characterizing_biomarker_set_of_cell_type =\
             Property(BSOntology._CCF_NS.is_characterizing_biomarker_set_of_cell_type,
-                     nameAnnotation=Literal("is characterizing biomarkers of cell type"),
-                     nameIsLabel=True,
                      graph=g)
         source =\
             Property(BSOntology._DC_TERMS_NS.source,
@@ -108,24 +78,20 @@ class BSOntology:
         """
         for instance in instances:
             anatomical_structure_iri =\
-                instance['anatomical_structure']['@id']
-            anatomical_structure_label =\
-                instance['anatomical_structure']['rdfs:label']
+                self._iri(instance['anatomical_structure']['@id'])
 
             if self._CCF_BASE_IRI in anatomical_structure_iri:
                 anatomical_structure =\
-                    self._class(anatomical_structure_iri,
-                                anatomical_structure_label)
+                    self._class(anatomical_structure_iri)
                 anatomical_structure.subClassOf =\
                     [self._class(self._OBO_NS.UBERON_0001062)]
             else:
                 anatomical_structure = self._class(anatomical_structure_iri)
 
-            cell_type_iri = instance['cell_type']['@id']
-            cell_type_label = instance['cell_type']['rdfs:label']
+            cell_type_iri = self._iri(instance['cell_type']['@id'])
 
             if self._CCF_BASE_IRI in cell_type_iri:
-                cell_type = self._class(cell_type_iri, cell_type_label)
+                cell_type = self._class(cell_type_iri)
                 cell_type.subClassOf = [self._class(self._OBO_NS.CL_0000000)]
             else:
                 cell_type = self._class(cell_type_iri)
@@ -136,12 +102,12 @@ class BSOntology:
                     anatomical_structure)]
 
             characterizing_biomarker_set_label =\
-                "characterizing biomarker set of " +\
-                cell_type_label
+                self._string("characterizing biomarker set of " +\
+                             instance['cell_type']['rdfs:label'])
             characterizing_biomarker_set_iri =\
-                "http://purl.org/ccf/" +\
-                snakecase(self._remove_punctuations(
-                    lowercase(characterizing_biomarker_set_label)))
+                self._iri(self._CCF_BASE_IRI + snakecase(
+                    self._remove_punctuations(
+                        lowercase(characterizing_biomarker_set_label))))
 
             characterizing_biomarker_set =\
                 self._class(characterizing_biomarker_set_iri,
@@ -159,7 +125,7 @@ class BSOntology:
             biomarkers = []
             for marker in instance['gene_biomarker']:
                 if marker:
-                    cls_gm = self._class(marker['@id'])
+                    cls_gm = self._class(self._iri(marker['@id']))
                     cell_type.subClassOf =\
                         [self._some_values_from(
                             self.kwargs['cell_type_has_gene_marker'],
@@ -172,7 +138,7 @@ class BSOntology:
 
             for marker in instance['protein_biomarker']:
                 if marker:
-                    cls_pm = self._class(marker['@id'])
+                    cls_pm = self._class(self._iri(marker['@id']))
                     cell_type.subClassOf =\
                         [self._some_values_from(
                             self.kwargs['cell_type_has_protein_marker'],
@@ -188,7 +154,7 @@ class BSOntology:
                     operator=OWL.intersectionOf,
                     members=[self._some_values_from(
                         self.kwargs['has_member'],
-                        self._class(marker['@id'])) for marker in biomarkers],
+                        self._class(self._iri(marker['@id']))) for marker in biomarkers],
                     graph=self.graph
                 )]
 
@@ -202,39 +168,24 @@ class BSOntology:
     def _expand_doi(self, str):
         return URIRef(str.replace("doi:", "http://doi.org/"))
 
-    def _class(self, iri, label=None):
-        if label is not None:
-            return Class(URIRef(iri),
-                         nameAnnotation=Literal(label),
-                         nameIsLabel=True,
-                         graph=self.graph)
-        else:
-            return Class(URIRef(iri),
-                         graph=self.graph)
+    def _class(self, identifier, label=None):
+        c = Class(identifier, graph=self.graph)
+        self._entity_label(c, label)
+        return c
 
-    def _property(self, iri, label=None):
-        if label is not None:
-            return Property(URIRef(iri),
-                            baseType=OWL.ObjectProperty,
-                            nameAnnotation=Literal(label),
-                            nameIsLabel=True,
-                            graph=self.graph)
-        else:
-            return Property(URIRef(iri),
-                            baseType=OWL.ObjectProperty,
-                            graph=self.graph)
+    def _property(self, identifier, label=None):
+        p = Property(identifier, baseType=OWL.ObjectProperty, graph=self.graph)
+        self._entity_label(p, label)
+        return p
 
-    def _attribute(self, iri, label=None):
+    def _attribute(self, identifier, label=None):
+        a = Property(identifier, baseType=OWL.DataProperty, graph=self.graph)
+        self._entity_label(a, label)
+        return a
+
+    def _entity_label(self, entity, label):
         if label is not None:
-            return Property(URIRef(iri),
-                            baseType=OWL.DataProperty,
-                            nameAnnotation=Literal(label),
-                            nameIsLabel=True,
-                            graph=self.graph)
-        else:
-            return Property(URIRef(iri),
-                            baseType=OWL.DataProperty,
-                            graph=self.graph)
+            self.graph.add((entity.identifier, RDFS.label, label))
 
     def _some_values_from(self, property, filler):
         return Restriction(property,
@@ -244,6 +195,15 @@ class BSOntology:
     def _remove_punctuations(self, str):
         punctuation_excl_dash = punctuation.replace('-', '')
         return str.translate(str.maketrans('', '', punctuation_excl_dash))
+
+    def _iri(self, str):
+        return URIRef(self._CCF_BASE_IRI + str[1:])
+
+    def _iri(self, str):
+        return URIRef(str)
+
+    def _string(self, str):
+        return Literal(str)
 
     def serialize(self, destination):
         """
