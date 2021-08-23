@@ -248,4 +248,5 @@ class BSOntology:
     def serialize(self, destination):
         """
         """
-        self.graph.serialize(format='turtle', destination=destination)
+        self.graph.serialize(format='application/rdf+xml',
+                             destination=destination)
