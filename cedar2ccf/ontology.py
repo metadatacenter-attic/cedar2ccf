@@ -198,9 +198,6 @@ class BSOntology:
         return str.translate(str.maketrans('', '', punctuation_excl_dash))
 
     def _iri(self, str):
-        return URIRef(self._CCF_BASE_IRI + str[1:])
-
-    def _iri(self, str):
         return URIRef(str)
 
     def _string(self, str):
