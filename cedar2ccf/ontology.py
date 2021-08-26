@@ -23,7 +23,7 @@ class BSOntology:
         self.kwargs = kwargs
 
     @staticmethod
-    def new():
+    def new(name):
         g = Graph()
         g.bind('ccf', BSOntology._CCF_NS)
         g.bind('dcterms', BSOntology._DC_TERMS_NS)
@@ -56,10 +56,11 @@ class BSOntology:
             Property(BSOntology._DC_TERMS_NS.source,
                      baseType=OWL_NS.AnnotationProperty, graph=g)
 
+        ontology_iri = BSOntology._CCF_BASE_IRI + name
         return BSOntology(
             g,
             ontology=Ontology(
-                identifier=URIRef("http://purl.org/ccf/ccf-bso"),
+                identifier=URIRef(ontology_iri),
                 graph=g),
             characterizing_biomarker_set=characterizing_biomarker_set,
             has_member=has_member,
