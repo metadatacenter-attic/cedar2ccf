@@ -17,11 +17,7 @@ def run(args):
         api_key = os.getenv('CEDAR_API_KEY')
 
         client = CedarClient(user_id, api_key)
-
         instances = client.get_instances(is_based_on=template_id)
-
-        uberon_only = [instance for instance in instances
-                       if 'fma' not in instance['anatomical_structure']['@id']]
-        o = o.mutate(uberon_only)
+        o = o.mutate(instances)
 
     o.serialize(args.output)
