@@ -9,9 +9,7 @@ def run(args):
     with open(args.input_file, "r") as f:
         lines = [line.rstrip() for line in f]
 
-    path, basename = os.path.split(args.output)
-
-    o = BSOntology.new(basename)
+    o = BSOntology.new(args.ontology_iri)
     for template_id in lines:
         user_id = os.getenv('CEDAR_USER_ID')
         api_key = os.getenv('CEDAR_API_KEY')

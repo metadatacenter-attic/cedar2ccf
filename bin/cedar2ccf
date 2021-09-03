@@ -14,6 +14,7 @@ script_name = os.path.basename(os.path.realpath(sys.argv[0]))
 if __name__ == "__main__":
     parser = ArgumentParser(formatter_class=RawTextHelpFormatter)
     parser.add_argument("input_file", help="Input file")
+    parser.add_argument("--ontology-iri", help="Ontology IRI")
     parser.add_argument("-o", "--output", nargs="?", help="Output file")
     parser.add_argument("-v", "--version", action="version",
                         version="%(prog)s " + cedar2ccf.__version__)

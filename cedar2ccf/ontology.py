@@ -23,7 +23,7 @@ class BSOntology:
         self.kwargs = kwargs
 
     @staticmethod
-    def new(name):
+    def new(ontology_iri):
         g = Graph()
         g.bind('ccf', BSOntology._CCF_NS)
         g.bind('dcterms', BSOntology._DC_TERMS_NS)
@@ -56,7 +56,6 @@ class BSOntology:
             Property(BSOntology._DC_TERMS_NS.source,
                      baseType=OWL_NS.AnnotationProperty, graph=g)
 
-        ontology_iri = BSOntology._CCF_BASE_IRI + name
         return BSOntology(
             g,
             ontology=Ontology(
