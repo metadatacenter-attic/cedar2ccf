@@ -39,7 +39,7 @@ $ pip install .
 
 3. Run the tool
    ```
-   $ cedar2ccf templates.txt -o ccf-bso.ttl
+   $ cedar2ccf templates.txt --ontology-iri http://purl.org/ccf/data/asctb.owl -o asctb.owl
    ```
 
 4. Open the resulting output file using [Protégé](https://protege.stanford.edu/)
